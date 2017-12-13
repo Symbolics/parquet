@@ -5,3 +5,5 @@
 
 ;;; "parquet-reader" goes here. Hacks and glory await!
 
+
+(print "hello")
