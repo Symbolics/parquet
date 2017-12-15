@@ -1,0 +1,30 @@
+
+
+File: file-name
+   Version:		<int32>
+   Number Rows:		<int64>
+   Meta-data:		Key1 Value1
+   			Key2 Value2
+			Key3 Value3
+   Schema Elements:
+   	  Name:		name1
+   	  Type:		type
+	  Type Length:	type_length
+	  Num Children:	num_children
+	  Field Repetition Type: repetition_type
+
+   	  Name:		name2
+   	  Type:		type
+	  Type Length:	type_length
+	  Num Children:	num_children
+	  Field Repetition Type: repetition_type
+
+    Row Group:
+    	Total byte size:	total_byte_size
+	Number Rows:		num_rows
+	Column chunks:
+
+	       Chunk 1
+	       	File Path:	file_path
+		File Offset:	file_offset
+		Column Metadata:	

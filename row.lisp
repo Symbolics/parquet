@@ -1,7 +1,5 @@
 ;;;; -*- Mode: LISP; Base: 10; Syntax: ANSI-Common-lisp; Package: parquet -*-
 
-(defpackage "PARQUET"
-  (:nicknames "PRQT")
-  (:use "CL")
-  (:export #:foo))
+(in-package "PARQUET")
 
+;;;; Structures and functions to read a row-group.
