@@ -7,10 +7,11 @@
   :serial t
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
-	       (:file "file")
-	       (:file "row")
-	       (:file "column")
-	       (:file "page")
+               (:file "type")
+               (:file "file")
+               (:file "row")
+               (:file "column")
+               (:file "page")
                (:file "parquet-reader")))
 
 (asdf:defsystem "parquet/tests"
@@ -22,7 +23,7 @@
   :components ((:module "tests"
                 :serial t
                 :components ((:file "test-package")
-			     (:file "main"))))
+                             (:file "main"))))
   :perform (asdf:test-op (o s)
 			 (uiop:symbol-call :fiveam '#:run!
 					   (uiop:find-symbol* :all-tests

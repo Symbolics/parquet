@@ -20,5 +20,7 @@
   (is (= (length (list 1 2)) (length (list 1 2))))
   (is (= 4 (foo)) "Foo should return 4, but returned ~A." (foo)))
 
-
-
+(test parquet-file-tests
+  :description "some tests for parquet format"
+  (is (parquet::magic-number? "tests/tpch/region.parquet") "This file has magic-number")
+  (is (= 193 (parquet::footer-length "tests/tpch/region.parquet")) "it has a footer of 193 length, but ~A." (parquet::footer-length "tests/tpch/region.parquet")))

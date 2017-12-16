@@ -3,5 +3,6 @@
 (defpackage "PARQUET"
   (:nicknames "PRQT")
   (:use "CL")
-  (:export #:foo))
+  (:export #:foo
+           #:magic-number?))
 
