@@ -4,12 +4,46 @@
 
 ;;; type definition
 
+(deftype int32 ()
+  "32bit"
+  '(unsigned-byte 32))
+
+
 ;; def intToZigZag(n: Int): Int = (n << 1) ^ (n >> 31)
 ;; def zigzagToInt(n: Int): Int = (n >>> 1) ^ - (n & 1)
 ;; def longToZigZag(n: Long): Long = (n << 1) ^ (n >> 63)
 ;; def zigzagToLong(n: Long): Long = (n >>> 1) ^ - (n & 1)
 
+(defun zigzag-to-int (n)
+  "maps signed integers to unsigned integers so that numbers with a small absolute value"
+  (logxor (ash n -1) (- (logand n 1))))
 
+(defstruct field
+  "id and type in one bytes"
+  (id 0)
+  (type nil))
+
+(defparameter *field-info* (make-field))
+
+(defun get-id-type (in f)
+  "update FIELD (ID, TYPE) struct from one byte, #bIIIITTTT"
+  (let ((byte (read-byte in)))
+    (setf (field-type f) (logand byte #x0f)
+          (field-id f) (+ (field-id f) (ash (logand byte #xf0) -4)))))
+
+
+(defun list-len (in)
+  "length of list from byte"
+  (let* ((byte (read-byte in nil))
+         (len (logand (ash byte -4) #x0f)))
+    (if (<= 15 len) (var-ints in)
+        len)))
+
+(defun char-list (in)
+  "return list of chars from bytes"
+  (let ((len (var-ints in)))
+    (loop for i from 1 to len
+          collect (code-char (read-byte in nil)))))
 
 ;;; structure encoding
 ;; BOOLEAN_TRUE, encoded as 1
