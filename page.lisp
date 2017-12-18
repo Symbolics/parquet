@@ -156,91 +156,91 @@
 (print (read-page-header "./tests/tpch/region.parquet" 112))
 ;; (+ 131 285)
 
-(ql:quickload "snappy")
+;; (ql:quickload "snappy")
 
-(defparameter resion-key (snappy::make-octet-vector 22))
+;; (defparameter resion-key (snappy::make-octet-vector 22))
 
-(with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 21)
-  (loop for i from 0 to 21
-        do (setf (aref resion-key i) (read-byte s nil nil))))
+;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 21)
+;;   (loop for i from 0 to 21
+;;         do (setf (aref resion-key i) (read-byte s nil nil))))
 
-(snappy::uncompress resion-key 0 (snappy::length resion-key))
+;; (snappy::uncompress resion-key 0 (snappy::length resion-key))
 
-(defparameter tmpe-octet (snappy::make-octet-vector 52))
+;; (defparameter tmpe-octet (snappy::make-octet-vector 52))
 
-(with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 60)
-  (loop for i from 0 to (- 52 1)
-        do (setf (aref tmpe-octet i) (read-byte s nil nil))))
+;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 60)
+;;   (loop for i from 0 to (- 52 1)
+;;         do (setf (aref tmpe-octet i) (read-byte s nil nil))))
 
-(snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))
-(snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet)))
-
-
-(defparameter tmpe-octet (snappy::make-octet-vector 285))
-
-(with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 131)
-  (loop for i from 0 to (- 285 1)
-        do (setf (aref tmpe-octet i) (read-byte s nil nil))))
-(format t "~A ~%"
-        (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))))
+;; (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))
+;; (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet)))
 
 
-;;; TEST part.parquet
+;; (defparameter tmpe-octet (snappy::make-octet-vector 285))
 
-(print (read-page-header "./tests/tpch/part.parquet" 4))
-;; (+ 24 8002)
-
-(print (read-page-header "./tests/tpch/part.parquet" 8026))
-;; (+ 8048 27683)
-
-(print (read-page-header "./tests/tpch/part.parquet" 35731))
-;; (+ 35752 4814)
-
-(print (read-page-header "./tests/tpch/part.parquet" 40566))
-;; (+ 40587 5541)
-
-(print (read-page-header "./tests/tpch/part.parquet" 46128))
-;; (+ 46150 13257)
-
-(print (read-page-header "./tests/tpch/part.parquet" 59407))
-;; (+ 59427 3997)
-
-(print (read-page-header "./tests/tpch/part.parquet" 63424))
-;; (+ 63445 7054)
-
-(print (read-page-header "./tests/tpch/part.parquet" 70499))
-;; (+ 70520 5091)
-
-(print (read-page-header "./tests/tpch/part.parquet" 75611))
-;; (+ 75633 17703)
+;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 131)
+;;   (loop for i from 0 to (- 285 1)
+;;         do (setf (aref tmpe-octet i) (read-byte s nil nil))))
+;; (format t "~A ~%"
+;;         (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))))
 
 
-(ql:quickload "snappy")
+;; ;;; TEST part.parquet
 
-(defparameter p-partkey (snappy::make-octet-vector 8002))
-(with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 24)
-  (loop for i from 0 to (- 8002 1)
-        do (setf (aref p-partkey i) (read-byte s nil nil))))
+;; (print (read-page-header "./tests/tpch/part.parquet" 4))
+;; ;; (+ 24 8002)
 
-(snappy::uncompress p-partkey 0 (snappy::length p-partkey))
+;; (print (read-page-header "./tests/tpch/part.parquet" 8026))
+;; ;; (+ 8048 27683)
 
-(defparameter p-name (snappy::make-octet-vector 27683))
-(with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 8048)
-  (loop for i from 0 to (- 27683 1)
-        do (setf (aref p-name i) (read-byte s nil nil))))
+;; (print (read-page-header "./tests/tpch/part.parquet" 35731))
+;; ;; (+ 35752 4814)
 
-(snappy::utf8-octets-to-string (snappy::uncompress p-name 0 (snappy::length p-name)))
+;; (print (read-page-header "./tests/tpch/part.parquet" 40566))
+;; ;; (+ 40587 5541)
+
+;; (print (read-page-header "./tests/tpch/part.parquet" 46128))
+;; ;; (+ 46150 13257)
+
+;; (print (read-page-header "./tests/tpch/part.parquet" 59407))
+;; ;; (+ 59427 3997)
+
+;; (print (read-page-header "./tests/tpch/part.parquet" 63424))
+;; ;; (+ 63445 7054)
+
+;; (print (read-page-header "./tests/tpch/part.parquet" 70499))
+;; ;; (+ 70520 5091)
+
+;; (print (read-page-header "./tests/tpch/part.parquet" 75611))
+;; ;; (+ 75633 17703)
 
 
-(defparameter p-size (snappy::make-octet-vector 3997))
-(with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-  (file-position s 59427)
-  (loop for i from 0 to (- 3997 1)
-        do (setf (aref p-size i) (read-byte s nil nil))))
+;; (ql:quickload "snappy")
 
-(snappy::uncompress p-size 0 (snappy::length p-size))
+;; (defparameter p-partkey (snappy::make-octet-vector 8002))
+;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 24)
+;;   (loop for i from 0 to (- 8002 1)
+;;         do (setf (aref p-partkey i) (read-byte s nil nil))))
+
+;; (snappy::uncompress p-partkey 0 (snappy::length p-partkey))
+
+;; (defparameter p-name (snappy::make-octet-vector 27683))
+;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 8048)
+;;   (loop for i from 0 to (- 27683 1)
+;;         do (setf (aref p-name i) (read-byte s nil nil))))
+
+;; (snappy::utf8-octets-to-string (snappy::uncompress p-name 0 (snappy::length p-name)))
+
+
+;; (defparameter p-size (snappy::make-octet-vector 3997))
+;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
+;;   (file-position s 59427)
+;;   (loop for i from 0 to (- 3997 1)
+;;         do (setf (aref p-size i) (read-byte s nil nil))))
+
+;; (snappy::uncompress p-size 0 (snappy::length p-size))
