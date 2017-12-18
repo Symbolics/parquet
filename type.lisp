@@ -3,6 +3,9 @@
 (in-package "PARQUET")
 
 ;;; type definition
+(deftype int32 () '(unsigned-byte 32))
+(deftype int64 () '(unsigned-byte 64))
+
 
 ;; TYPE is already defined, so with parquet-type
 (deftype parquet-type () '(member :boolean :int32 :int64 :int96 :int :float :double :byte-array :fixed-length-byte-array))

@@ -7,10 +7,11 @@
   :serial t
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
+               (:file "thrift-compact-protocol")
                (:file "type")
-               (:file "file")
-               (:file "row")
                (:file "column")
+               (:file "row")
+               (:file "file")
                (:file "page")
                (:file "parquet-reader")))
 

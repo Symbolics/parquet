@@ -45,32 +45,46 @@
     (loop for i from 1 to len
           collect (code-char (read-byte in nil)))))
 
-;;; structure encoding
-;; BOOLEAN_TRUE, encoded as 1
-;; BOOLEAN_FALSE, encoded as 2
-;; BYTE, encoded as 3
-;; I16, encoded as 4
-;; I32, encoded as 5
-;; I64, encoded as 6
-;; DOUBLE, encoded as 7
-;; BINARY, used for binary and string fields, encoded as 8
-;; LIST, encoded as 9
-;; SET, encoded as 10
-;; MAP, encoded as 11
-;; STRUCT, used for both structs and union fields, encoded as 12
-;; Note that because there are 2 specific field types for the boolean values, the encoding of a boolean field value has no length (0 bytes).
+(defun mkstr (&rest args)
+  "make string with char elements"
+  (with-output-to-string (s)
+    (dolist (a args)
+      (princ a s))))
 
+(defun u-to-s (number bit)
+  "Convert an unsigned number to a signed number with `bit` length."
+  (if (and (plusp number)
+           (< number (ash 1 bit)))
+      (if (plusp (logand number (ash 1 (1- bit))))
+          (- number (ash 1 bit))
+          number)
+      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
 
-;;; List and Set
+(defun s-to-u (number bit)
+  "Convert a signed number to an unsigned number with `bit` length."
+  (if (and (<= (- (ash 1 (1- bit))) number)
+           (< number (ash 1 (1- bit))))
+      (if (minusp number)
+          (+ number (ash 1 bit))
+          number)
+      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
 
-;; BOOL, encoded as 2
-;; BYTE, encoded as 3
-;; DOUBLE, encoded as 4
-;; I16, encoded as 6
-;; I32, encoded as 8
-;; I64, encoded as 10
-;; STRING, used for binary and string fields, encoded as 11
-;; STRUCT, used for structs and union fields, encoded as 12
-;; MAP, encoded as 13
-;; SET, encoded as 14
-;; LIST, encoded as 15
+;;; with byte arry 
+;; (defun var-ints (bytes &optional (results 0) (depth 0))
+;;   "serializing integers. ref: https://developers.google.com/protocol-buffers/docs/encoding#varints
+;;    ex) 1010 1100 0000 0010 => #b0101100 #b0000010 => 000 0010 ++ 010 1100 => 256 + 32 + 8 + 4 = 300"
+;;   (if (not (equal #b10000000 (logand #b10000000 (first bytes))))
+;;       (logior results (ash (logand #b01111111 (first bytes)) (* 7 depth)))
+;;       (if (= depth 0)
+;;           (var-ints (cdr bytes) (logior (logand #b01111111 (first bytes)) results) (+ 1 depth))
+;;           (var-ints (cdr bytes) (logior (ash (logand #b01111111 (first bytes)) (* 7 depth)) results) (+ 1 depth)))))
+
+(defun var-ints (s &optional (results 0) (depth 0))
+  "serializing integers from stream. ref: https://developers.google.com/protocol-buffers/docs/encoding#varints
+   ex) 1010 1100 0000 0010 => #b0101100 #b0000010 => 000 0010 ++ 010 1100 => 256 + 32 + 8 + 4 = 300"
+  (let ((byte (read-byte s nil nil)))
+    (if (not (equal #b10000000 (logand #b10000000 byte)))
+        (logior results (ash (logand #b01111111 byte) (* 7 depth)))
+      (if (= depth 0)
+          (var-ints s (logior (logand #b01111111 byte) results) (+ 1 depth))
+          (var-ints s (logior (ash (logand #b01111111 byte) (* 7 depth)) results) (+ 1 depth))))))
