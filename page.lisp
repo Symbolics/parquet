@@ -14,8 +14,9 @@
   (data-page-header) ; DataPageHeader
   (index-page-header) ; IndexPageHeader
   (dictionary-page-header) ; DictionaryPageHeader
-  (data_page_header_v2))
-
+  (data_page_header_v2)
+  ;; ADDED FOR ME
+  (data-offset))
 
 ;; (defstruct data-page-header ...
 (defstruct data-page-header
@@ -39,7 +40,7 @@
 (defun extract-dictionary-page-header (dic-header field s)
   "parse DICTIONARY-PAGE-HEADER"
   (get-id-type s field)
-  (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
+  ;; (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
   (cond
     ((= 0 (field-type field))
      (format t "end of dictionary-page-header : ~A ~%" (file-position s)))
@@ -61,7 +62,7 @@
 (defun extract-data-page-header (dp-header field s)
   "parse DATA-PAGE-HEADER"
   (get-id-type s field)
-  (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
+  ;; (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
   (cond
     ((= 0 (field-type field))
      (format t "end of data-page-header : ~A ~%" (file-position s)))
@@ -90,12 +91,12 @@
 (defun extract-page-header (pageheader field s)
   "parse PAGE-HEADER"
   (get-id-type s field)
-  (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
+  ;; (format t "field : ~A, type : ~A ~%" (field-id field) (field-type field))
   (cond
     ((= 0 (field-type field))
      (format t "end of page-header : ~A ~%" (file-position s))
      ;; FROM HERE DATA BYTES
-     )
+     (setf (page-header-data-offset pageheader) (file-position s)))
     ((= 1 (field-id field))
      ;; PageType
      (setf (page-header-type pageheader) (zigzag-to-int (var-ints s)))
@@ -146,6 +147,7 @@
       pageheader)))
 
 
+
 ;;; TEST region.parquet file
 (print (read-page-header "./tests/tpch/region.parquet" 4))
 ;; (+ 21 22)
@@ -155,102 +157,3 @@
 
 (print (read-page-header "./tests/tpch/region.parquet" 112))
 ;; (+ 131 285)
-
-;; (defparameter resion-key (snappy::make-octet-vector 22))
-
-;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-;;     (file-position s 21)
-;;     (loop for i from 0 to 21
-;;           do (setf (aref resion-key i) (read-byte s nil nil))))
-
-;; (defparameter r-ky (make-array 22 :element-type '(unsigned-byte 8)))
-;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 21)
-;;   (loop for i from 0 to 21
-;;         do (setf (aref r-ky i) (read-byte s nil nil))))
-
-;; ;; resion-key
-;; (type-of resion-key)
-;; (type-of r-ky)
-;; (uncompress resion-key 0 (length resion-key))
-;; (uncompress r-ky 0 (length r-ky))
-;; ;; read-u32
-;; t
-
-;; (defparameter tmpe-octet (snappy::make-octet-vector 52))
-
-;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-;;    (file-position s 60)
-;;    (loop for i from 0 to (- 52 1)
-;;          do (setf (aref tmpe-octet i) (read-byte s nil nil))))
-
-;; (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))
-;; (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet)))
-
-
-;; (defparameter tmpe-octet (snappy::make-octet-vector 285))
-
-;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 131)
-;;   (loop for i from 0 to (- 285 1)
-;;         do (setf (aref tmpe-octet i) (read-byte s nil nil))))
-;; (format t "~A ~%"
-;;         (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))))
-
-
-;; ;;; TEST part.parquet
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 4))
-;; ;; (+ 24 8002)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 8026))
-;; ;; (+ 8048 27683)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 35731))
-;; ;; (+ 35752 4814)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 40566))
-;; ;; (+ 40587 5541)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 46128))
-;; ;; (+ 46150 13257)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 59407))
-;; ;; (+ 59427 3997)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 63424))
-;; ;; (+ 63445 7054)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 70499))
-;; ;; (+ 70520 5091)
-
-;; (print (read-page-header "./tests/tpch/part.parquet" 75611))
-;; ;; (+ 75633 17703)
-
-
-;; (ql:quickload "snappy")
-
-;; (defparameter p-partkey (snappy::make-octet-vector 8002))
-;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 24)
-;;   (loop for i from 0 to (- 8002 1)
-;;         do (setf (aref p-partkey i) (read-byte s nil nil))))
-
-;; (snappy::uncompress p-partkey 0 (snappy::length p-partkey))
-
-;; (defparameter p-name (snappy::make-octet-vector 27683))
-;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 8048)
-;;   (loop for i from 0 to (- 27683 1)
-;;         do (setf (aref p-name i) (read-byte s nil nil))))
-
-;; (snappy::utf8-octets-to-string (snappy::uncompress p-name 0 (snappy::length p-name)))
-
-
-;; (defparameter p-size (snappy::make-octet-vector 3997))
-;; (with-open-file (s "./tests/tpch/part.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 59427)
-;;   (loop for i from 0 to (- 3997 1)
-;;         do (setf (aref p-size i) (read-byte s nil nil))))
-
-;; (snappy::uncompress p-size 0 (snappy::length p-size))

@@ -9,11 +9,11 @@
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
                (:file "thrift-compact-protocol")
+               (:file "page")
                (:file "type")
                (:file "column")
                (:file "row")
                (:file "file")
-               (:file "page")
                (:file "parquet-reader")))
 
 (asdf:defsystem "parquet/tests"

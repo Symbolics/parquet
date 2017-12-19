@@ -35,7 +35,8 @@
   (is (parquet::magic-number? "tests/tpch/region.parquet") "This file has magic-number")
   (is (= 193 (parquet::footer-length "tests/tpch/region.parquet")) "it has a footer of 193 length, but ~A." (parquet::footer-length "tests/tpch/region.parquet"))
   (is (= 5 (parquet::file-meta-data-num-rows (parquet::read-file-meta-data "tests/tpch/region.parquet"))) "REGION.PARQUET has 5 rownum, but ~A." (parquet::file-meta-data-num-rows (parquet::read-file-meta-data "tests/tpch/region.parquet")))
-  (is (= 3 (length (parquet::get-column-chunk-metadata "tests/tpch/region.parquet"))) "REGION.PARQUET has 3 columns, but ~A." (parquet::get-column-chunk-metadata "tests/tpch/region.parquet")))
+  (is (= 3 (length (parquet::get-column-chunk-metadata "tests/tpch/region.parquet"))) "REGION.PARQUET has 3 columns, but ~A." (parquet::get-column-chunk-metadata "tests/tpch/region.parquet"))
+  (is (= 22 (parquet::page-header-compressed-page-size (parquet::read-page-header "./tests/tpch/region.parquet" 4)))))
 
 (test thrift-tests
   :description "compact protocol"

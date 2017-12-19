@@ -2,13 +2,6 @@
 
 (in-package "PARQUET")
 
-;;; type definition
-
-(deftype int32 ()
-  "32bit"
-  '(unsigned-byte 32))
-
-
 ;; def intToZigZag(n: Int): Int = (n << 1) ^ (n >> 31)
 ;; def zigzagToInt(n: Int): Int = (n >>> 1) ^ - (n & 1)
 ;; def longToZigZag(n: Long): Long = (n << 1) ^ (n >> 63)

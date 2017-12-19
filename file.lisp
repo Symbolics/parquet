@@ -229,14 +229,65 @@
 
 (get-group-columns-metadata "./tests/tpch/region.parquet")
 
-(print (get-column-chunk-metadata "./tests/tpch/region.parquet"))
+(get-column-chunk-metadata "./tests/tpch/region.parquet")
+
+(defun get-data-type-columns (metadata)
+  "return offset of COLUMN-METADATA"
+  (mapcar (lambda (x) (data-type (column-metadata-type x))) metadata))
 
 
-;;(defn get-start-offsets (metadata)
-;;  "return each column offsets of COLUMN-METADATA"
-;;  )
-;;(mapcar (lambda (x) column-metadata-)(get-column-chunk-metadata "./tests/tpch/region.parquet")
+(defun get-offset-page (metadata)
+  "return offset of the PAGE-HEADER"
+  (or (column-metadata-data-page-offset metadata)
+      (column-metadata-index-page-offset metadata)
+      (column-metadata-dictionary-page-offset metadata)))
 
+(defun read-bytes-between (filename start end)
+  "read bytes-array between start and end"
+  (with-open-file (s filename :element-type '(unsigned-byte 8))
+    (file-position s start)
+    (let ((vec (make-array end :element-type '(unsigned-byte 8))))
+      (loop for i from 0 to (- end 1)
+            do (setf (aref vec i) (read-byte s nil nil)))
+      vec)))
+
+(defun read-columns-bytes (filename)
+  "return bytes vectors for columns"
+  (loop for x in (get-column-chunk-metadata filename)
+        collect (let ((type (column-metadata-type x))
+                      (codec (column-metadata-codec x))
+                      (compressed-size (page-header-compressed-page-size
+                                        (read-page-header filename (get-offset-page x))))
+                      (start-offset (page-header-data-offset
+                                     (read-page-header filename (get-offset-page x)))))
+                  (format t "DATA TYPE : ~A. ~%DATA CODEC : ~A~%" (data-type type) (compression-codec-type codec))
+                  (read-bytes-between filename start-offset compressed-size))))
+
+(defun read-columns-bytes (filename)
+  "return bytes vectors for columns"
+  (loop for x in (get-column-chunk-metadata filename)
+        collect (let ((type (column-metadata-type x))
+                      (codec (column-metadata-codec x))
+                      (compressed-size (page-header-compressed-page-size
+                                        (read-page-header filename (get-offset-page x))))
+                      (start-offset (page-header-data-offset
+                                     (read-page-header filename (get-offset-page x)))))
+                  (format t "DATA TYPE : ~A. ~%DATA CODEC : ~A~%" (data-type type) (compression-codec-type codec))
+                  (case (data-type type)
+                    (BOOLEAN (format t "BOOLEAN") (read-bytes-between filename start-offset compressed-size))
+                    (INT32 (format t "INT32") (read-bytes-between filename start-offset compressed-size))
+                    (INT64 (format t "INT63") (read-bytes-between filename start-offset compressed-size))
+                    (INT96 (format t "INT96") (read-bytes-between filename start-offset compressed-size))
+                    (FLOAT (format t "FLOAT") (read-bytes-between filename start-offset compressed-size))
+                    (DOUBLE (format t "DOUBLE") (read-bytes-between filename start-offset compressed-size))
+                    (BYTE_ARRAY (format t "BYTE_ARRAY") (read-bytes-between filename start-offset compressed-size))
+                    (FIXED_LEN_BYTE_ARRAY (format t "FIXED_LEN_BYTE_ARRAY") (read-bytes-between filename start-offset compressed-size))))))
+
+
+(read-columns-bytes "./tests/tpch/region.parquet")
+;; (read-columns-bytes "./tests/tpch/part.parquet")
+
+(mapcar (lambda (x) (uncompress x 0 (length x))) (read-columns-bytes "./tests/tpch/region.parquet"))
 
 ;; (#S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("r_comment") :CODEC 1 :NUM-VALUES 5 :TOTAL-UNCOMPRESSED-SIZE 369 :TOTAL-COMPRESSED-SIZE 304 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 112 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
 
@@ -244,32 +295,9 @@
 
 ;;    #S(COLUMN-METADATA :TYPE 1 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("r_regionkey") :CODEC 1 :NUM-VALUES 5 :TOTAL-UNCOMPRESSED-SIZE 37 :TOTAL-COMPRESSED-SIZE 39 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 4 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL))
 
-
-
 ;; (defun print-file-metadata (file-metadata struct...
 ;;   "Prints the file-metadata structure using pretty printing. See CLtL2 section on pretty printing to get nice tables."
 
 (defun foo ()
   "Test"
   4)
-
-
-;;(get-column-chunk-metadata "./tests/tpch/part.parquet")
-
-;; (#S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_comment") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 35195 :TOTAL-COMPRESSED-SIZE 17725 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 75611 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 5 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_retailprice") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 16021 :TOTAL-COMPRESSED-SIZE 5112 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 70499 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_container") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 23242 :TOTAL-COMPRESSED-SIZE 7075 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 63424 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 1 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_size") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 8020 :TOTAL-COMPRESSED-SIZE 4017 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 59407 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_type") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 49124 :TOTAL-COMPRESSED-SIZE 13279 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 46128 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_brand") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 24021 :TOTAL-COMPRESSED-SIZE 5562 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 40566 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_mfgr") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 36021 :TOTAL-COMPRESSED-SIZE 4835 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 35731 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_name") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 74276 :TOTAL-COMPRESSED-SIZE 27705 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 8026 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
-
-;; #S(COLUMN-METADATA :TYPE 1 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_partkey") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 8020 :TOTAL-COMPRESSED-SIZE 8022 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 4 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)) 
