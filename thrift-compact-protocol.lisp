@@ -51,33 +51,6 @@
     (dolist (a args)
       (princ a s))))
 
-(defun u-to-s (number bit)
-  "Convert an unsigned number to a signed number with `bit` length."
-  (if (and (plusp number)
-           (< number (ash 1 bit)))
-      (if (plusp (logand number (ash 1 (1- bit))))
-          (- number (ash 1 bit))
-          number)
-      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
-
-(defun s-to-u (number bit)
-  "Convert a signed number to an unsigned number with `bit` length."
-  (if (and (<= (- (ash 1 (1- bit))) number)
-           (< number (ash 1 (1- bit))))
-      (if (minusp number)
-          (+ number (ash 1 bit))
-          number)
-      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
-
-;;; with byte arry 
-;; (defun var-ints (bytes &optional (results 0) (depth 0))
-;;   "serializing integers. ref: https://developers.google.com/protocol-buffers/docs/encoding#varints
-;;    ex) 1010 1100 0000 0010 => #b0101100 #b0000010 => 000 0010 ++ 010 1100 => 256 + 32 + 8 + 4 = 300"
-;;   (if (not (equal #b10000000 (logand #b10000000 (first bytes))))
-;;       (logior results (ash (logand #b01111111 (first bytes)) (* 7 depth)))
-;;       (if (= depth 0)
-;;           (var-ints (cdr bytes) (logior (logand #b01111111 (first bytes)) results) (+ 1 depth))
-;;           (var-ints (cdr bytes) (logior (ash (logand #b01111111 (first bytes)) (* 7 depth)) results) (+ 1 depth)))))
 
 (defun var-ints (s &optional (results 0) (depth 0))
   "serializing integers from stream. ref: https://developers.google.com/protocol-buffers/docs/encoding#varints

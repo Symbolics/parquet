@@ -228,7 +228,15 @@
 (read-file-meta-data "./tests/tpch/customer.parquet")
 
 (get-group-columns-metadata "./tests/tpch/region.parquet")
+
 (print (get-column-chunk-metadata "./tests/tpch/region.parquet"))
+
+
+;;(defn get-start-offsets (metadata)
+;;  "return each column offsets of COLUMN-METADATA"
+;;  )
+;;(mapcar (lambda (x) column-metadata-)(get-column-chunk-metadata "./tests/tpch/region.parquet")
+
 
 ;; (#S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("r_comment") :CODEC 1 :NUM-VALUES 5 :TOTAL-UNCOMPRESSED-SIZE 369 :TOTAL-COMPRESSED-SIZE 304 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 112 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
 
@@ -246,9 +254,7 @@
   4)
 
 
-
-
-(get-column-chunk-metadata "./tests/tpch/part.parquet")
+;;(get-column-chunk-metadata "./tests/tpch/part.parquet")
 
 ;; (#S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("p_comment") :CODEC 1 :NUM-VALUES 2000 :TOTAL-UNCOMPRESSED-SIZE 35195 :TOTAL-COMPRESSED-SIZE 17725 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 75611 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
 

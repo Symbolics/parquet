@@ -156,23 +156,33 @@
 (print (read-page-header "./tests/tpch/region.parquet" 112))
 ;; (+ 131 285)
 
-;; (ql:quickload "snappy")
-
 ;; (defparameter resion-key (snappy::make-octet-vector 22))
 
 ;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
+;;     (file-position s 21)
+;;     (loop for i from 0 to 21
+;;           do (setf (aref resion-key i) (read-byte s nil nil))))
+
+;; (defparameter r-ky (make-array 22 :element-type '(unsigned-byte 8)))
+;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
 ;;   (file-position s 21)
 ;;   (loop for i from 0 to 21
-;;         do (setf (aref resion-key i) (read-byte s nil nil))))
+;;         do (setf (aref r-ky i) (read-byte s nil nil))))
 
-;; (snappy::uncompress resion-key 0 (snappy::length resion-key))
+;; ;; resion-key
+;; (type-of resion-key)
+;; (type-of r-ky)
+;; (uncompress resion-key 0 (length resion-key))
+;; (uncompress r-ky 0 (length r-ky))
+;; ;; read-u32
+;; t
 
 ;; (defparameter tmpe-octet (snappy::make-octet-vector 52))
 
 ;; (with-open-file (s "./tests/tpch/region.parquet" :element-type '(unsigned-byte 8))
-;;   (file-position s 60)
-;;   (loop for i from 0 to (- 52 1)
-;;         do (setf (aref tmpe-octet i) (read-byte s nil nil))))
+;;    (file-position s 60)
+;;    (loop for i from 0 to (- 52 1)
+;;          do (setf (aref tmpe-octet i) (read-byte s nil nil))))
 
 ;; (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet))
 ;; (snappy::utf8-octets-to-string (snappy::uncompress tmpe-octet 0 (snappy::length tmpe-octet)))

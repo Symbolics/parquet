@@ -5,6 +5,7 @@
   :author "Inchul <ijung@mapr.com>"
   :license "BSD"
   :serial t
+  :depends-on ("snappy")
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
                (:file "thrift-compact-protocol")
