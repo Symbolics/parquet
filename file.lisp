@@ -276,7 +276,7 @@
                   (case (data-type type)
                     (BOOLEAN (format t "BOOLEAN") (read-bytes-between filename start-offset compressed-size))
                     (INT32 (format t "INT32") (read-bytes-between filename start-offset compressed-size))
-                    (INT64 (format t "INT63") (read-bytes-between filename start-offset compressed-size))
+                    (INT64 (format t "INT64") (read-bytes-between filename start-offset compressed-size))
                     (INT96 (format t "INT96") (read-bytes-between filename start-offset compressed-size))
                     (FLOAT (format t "FLOAT") (read-bytes-between filename start-offset compressed-size))
                     (DOUBLE (format t "DOUBLE") (read-bytes-between filename start-offset compressed-size))
@@ -284,10 +284,103 @@
                     (FIXED_LEN_BYTE_ARRAY (format t "FIXED_LEN_BYTE_ARRAY") (read-bytes-between filename start-offset compressed-size))))))
 
 
-(read-columns-bytes "./tests/tpch/region.parquet")
-;; (read-columns-bytes "./tests/tpch/part.parquet")
 
 (mapcar (lambda (x) (uncompress x 0 (length x))) (read-columns-bytes "./tests/tpch/region.parquet"))
+
+
+(defparameter col0 (first (read-columns-bytes "./tests/tpch/region.parquet")))
+(defparameter col1 (second (read-columns-bytes "./tests/tpch/region.parquet")))
+(defparameter col2 (third (read-columns-bytes "./tests/tpch/region.parquet")))
+
+
+(defun read-32bit-int (bytes)
+  "convert 32bit bytes-array to integer"
+  (loop for i from 0 below (length bytes) by 4
+        collect (let ((u4 0))
+                  (setf (ldb (byte 8 0) u4) (aref bytes (+ 0 i)))
+                  (setf (ldb (byte 8 8) u4) (aref bytes (+ 1 i)))
+                  (setf (ldb (byte 8 16) u4) (aref bytes (+ 2 i)))
+                  (setf (ldb (byte 8 24) u4) (aref bytes (+ 3 i)))
+                  u4)))
+
+
+(defun read-64bit-int (bytes)
+  "convert 64bit bytes-array to integer"
+  (loop for i from 0 below (length bytes) by 8
+        collect (let ((u8 0))
+                  (setf (ldb (byte 8 0) u8) (aref bytes (+ 0 i)))
+                  (setf (ldb (byte 8 8) u8) (aref bytes (+ 1 i)))
+                  (setf (ldb (byte 8 16) u8) (aref bytes (+ 2 i)))
+                  (setf (ldb (byte 8 24) u8) (aref bytes (+ 3 i)))
+                  (setf (ldb (byte 8 32) u8) (aref bytes (+ 4 i)))
+                  (setf (ldb (byte 8 40) u8) (aref bytes (+ 5 i)))
+                  (setf (ldb (byte 8 48) u8) (aref bytes (+ 6 i)))
+                  (setf (ldb (byte 8 56) u8) (aref bytes (+ 7 i)))
+                  u8)))
+
+
+(defun read-96bit-int (bytes)
+  "convert 96bit bytes-array to integer"
+  (loop for i from 0 below (length bytes) by 16
+        collect (let ((u16 0))
+                  (setf (ldb (byte 8 0) u16) (aref bytes (+ 0 i)))
+                  (setf (ldb (byte 8 8) u16) (aref bytes (+ 1 i)))
+                  (setf (ldb (byte 8 16) u16) (aref bytes (+ 2 i)))
+                  (setf (ldb (byte 8 24) u16) (aref bytes (+ 3 i)))
+                  (setf (ldb (byte 8 32) u16) (aref bytes (+ 4 i)))
+                  (setf (ldb (byte 8 40) u16) (aref bytes (+ 5 i)))
+                  (setf (ldb (byte 8 48) u16) (aref bytes (+ 6 i)))
+                  (setf (ldb (byte 8 56) u16) (aref bytes (+ 7 i)))
+                  (setf (ldb (byte 8 64) u16) (aref bytes (+ 8 i)))
+                  (setf (ldb (byte 8 72) u16) (aref bytes (+ 9 i)))
+                  (setf (ldb (byte 8 80) u16) (aref bytes (+ 10 i)))
+                  (setf (ldb (byte 8 88) u16) (aref bytes (+ 11 i)))
+                  u16)))
+
+
+(read-32bit-int (uncompress col2 0 (length col2)))
+
+(defun read-byte-array (bytes)
+  (let ((idx 0))
+    (loop while (< idx (length bytes))
+          do (let ((len 0))
+                    (setf (ldb (byte 8 0) len) (aref bytes idx))
+                    (setf (ldb (byte 8 8) len) (aref bytes (incf idx)))
+                    (setf (ldb (byte 8 16) len) (aref bytes (incf idx)))
+                    (setf (ldb (byte 8 24) len) (aref bytes (incf idx)))
+                    (loop repeat len
+                          collect (print (incf idx)))
+                    ))))
+
+(defun read-byte-array (bytes)
+  "return string column bytes"
+  (let ((idx 0))
+    (loop while (< idx (length bytes))
+          collect (let ((len 0))
+                    (setf (ldb (byte 8 0) len) (aref bytes idx))
+                    (setf (ldb (byte 8 8) len) (aref bytes (incf idx)))
+                    (setf (ldb (byte 8 16) len) (aref bytes (incf idx)))
+                    (setf (ldb (byte 8 24) len) (aref bytes (incf idx)))
+                    (format t "length : ~A ~%" len)
+                    (let ((str (make-array len)))
+                      (loop for j from 0 below len
+                            collect (setf (aref str j) (code-char (aref bytes (incf idx)))))
+                      (incf idx)
+                      str)))))
+
+
+(defun read-string-column (bytes)
+  "return string column"
+  (mapcar (lambda (x) (apply #'mkstr (coerce x 'list))) (read-byte-array bytes)))
+
+
+(read-string-column (uncompress col1 0 (length col1)))
+
+
+
+
+;; (read-columns-bytes "./tests/tpch/part.parquet")
+
 
 ;; (#S(COLUMN-METADATA :TYPE 6 :ENCODINGS (4 0) :PATH-IN-SCHEMA ("r_comment") :CODEC 1 :NUM-VALUES 5 :TOTAL-UNCOMPRESSED-SIZE 369 :TOTAL-COMPRESSED-SIZE 304 :KEY-VALUE-METADATA NIL :DATA-PAGE-OFFSET 112 :INDEX-PAGE-OFFSET NIL :DICTIONARY-PAGE-OFFSET NIL :STATISTICS NIL :ENCODING_STATS NIL)
 
