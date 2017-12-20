@@ -2,7 +2,7 @@
 
 (defpackage "PARQUET"
   (:nicknames "PRQT")
-  (:use "CL" "SNAPPY")
+  (:use "CL" "SNAPPY" "CL-BINARY")
   (:export #:foo
            #:magic-number?))
 
