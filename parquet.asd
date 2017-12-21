@@ -5,7 +5,7 @@
   :author "Inchul <ijung@mapr.com>"
   :license "BSD"
   :serial t
-  :depends-on ("snappy" "cl-binary")
+  :depends-on ("com.google.base" "snappy" "cl-binary")
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
                (:file "thrift-compact-protocol")

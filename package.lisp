@@ -2,7 +2,9 @@
 
 (defpackage "PARQUET"
   (:nicknames "PRQT")
-  (:use "CL" "SNAPPY" "CL-BINARY")
+  (:use "CL" "COM.GOOGLE.BASE" "SNAPPY" "CL-BINARY")
   (:export #:foo
-           #:magic-number?))
+           #:magic-number?
+           #:read-columns-vector
+           #:read-columns-bytes))
 
