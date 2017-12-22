@@ -219,17 +219,18 @@
   (mapcar #'column-chunk-meta-data (first (mapcar #'row-group-columns (file-meta-data-row-groups (read-file-meta-data filename))))))
 
 
-(file-meta-data-num-rows (read-file-meta-data "./tests/tpch/region.parquet"))
-(read-file-meta-data "./tests/tpch/lineitem.parquet")
-(read-file-meta-data "./tests/tpch/orders.parquet")
-(read-file-meta-data "./tests/tpch/part.parquet")
-(read-file-meta-data "./tests/tpch/partsupp.parquet")
-(read-file-meta-data "./tests/tpch/supplier.parquet")
-(read-file-meta-data "./tests/tpch/customer.parquet")
+;;; example 
+;; (file-meta-data-num-rows (read-file-meta-data "./tests/tpch/region.parquet"))
+;; (read-file-meta-data "./tests/tpch/lineitem.parquet")
+;; (read-file-meta-data "./tests/tpch/orders.parquet")
+;; (read-file-meta-data "./tests/tpch/part.parquet")
+;; (read-file-meta-data "./tests/tpch/partsupp.parquet")
+;; (read-file-meta-data "./tests/tpch/supplier.parquet")
+;; (read-file-meta-data "./tests/tpch/customer.parquet")
 
-(get-group-columns-metadata "./tests/tpch/region.parquet")
+;; (get-group-columns-metadata "./tests/tpch/region.parquet")
 
-(get-column-chunk-metadata "./tests/tpch/region.parquet")
+;; (get-column-chunk-metadata "./tests/tpch/region.parquet")
 
 (defun get-data-type-columns (metadata)
   "return offset of COLUMN-METADATA"
@@ -242,30 +243,30 @@
       (column-metadata-index-page-offset metadata)
       (column-metadata-dictionary-page-offset metadata)))
 
-(defun read-32bit-int (bytes)
-  "convert 32bit bytes-array to integer"
-  (loop for i from 0 below (length bytes) by 4
-        collect (let ((u4 0))
-                  (setf (ldb (byte 8 0) u4) (aref bytes (+ 0 i)))
-                  (setf (ldb (byte 8 8) u4) (aref bytes (+ 1 i)))
-                  (setf (ldb (byte 8 16) u4) (aref bytes (+ 2 i)))
-                  (setf (ldb (byte 8 24) u4) (aref bytes (+ 3 i)))
-                  u4)))
+;; (defun read-32bit-int (bytes)
+;;   "convert 32bit bytes-array to integer"
+;;   (loop for i from 0 below (length bytes) by 4
+;;         collect (let ((u4 0))
+;;                   (setf (ldb (byte 8 0) u4) (aref bytes (+ 0 i)))
+;;                   (setf (ldb (byte 8 8) u4) (aref bytes (+ 1 i)))
+;;                   (setf (ldb (byte 8 16) u4) (aref bytes (+ 2 i)))
+;;                   (setf (ldb (byte 8 24) u4) (aref bytes (+ 3 i)))
+;;                   u4)))
 
 
-(defun read-64bit-int (bytes)
-  "convert 64bit bytes-array to integer"
-  (loop for i from 0 below (length bytes) by 8
-        collect (let ((u8 0))
-                  (setf (ldb (byte 8 0) u8) (aref bytes (+ 0 i)))
-                  (setf (ldb (byte 8 8) u8) (aref bytes (+ 1 i)))
-                  (setf (ldb (byte 8 16) u8) (aref bytes (+ 2 i)))
-                  (setf (ldb (byte 8 24) u8) (aref bytes (+ 3 i)))
-                  (setf (ldb (byte 8 32) u8) (aref bytes (+ 4 i)))
-                  (setf (ldb (byte 8 40) u8) (aref bytes (+ 5 i)))
-                  (setf (ldb (byte 8 48) u8) (aref bytes (+ 6 i)))
-                  (setf (ldb (byte 8 56) u8) (aref bytes (+ 7 i)))
-                  u8)))
+;; (defun read-64bit-int (bytes)
+;;   "convert 64bit bytes-array to integer"
+;;   (loop for i from 0 below (length bytes) by 8
+;;         collect (let ((u8 0))
+;;                   (setf (ldb (byte 8 0) u8) (aref bytes (+ 0 i)))
+;;                   (setf (ldb (byte 8 8) u8) (aref bytes (+ 1 i)))
+;;                   (setf (ldb (byte 8 16) u8) (aref bytes (+ 2 i)))
+;;                   (setf (ldb (byte 8 24) u8) (aref bytes (+ 3 i)))
+;;                   (setf (ldb (byte 8 32) u8) (aref bytes (+ 4 i)))
+;;                   (setf (ldb (byte 8 40) u8) (aref bytes (+ 5 i)))
+;;                   (setf (ldb (byte 8 48) u8) (aref bytes (+ 6 i)))
+;;                   (setf (ldb (byte 8 56) u8) (aref bytes (+ 7 i)))
+;;                   u8)))
 
 
 (defun read-96bit-int (bytes)
@@ -297,26 +298,25 @@
             do (setf (aref vec i) (read-byte s nil nil)))
       vec)))
 
-(defun read-byte-array (bytes)
-  "return string column bytes"
-  (let ((idx 0))
-    (loop while (< idx (length bytes))
-          collect (let ((len 0))
-                    (setf (ldb (byte 8 0) len) (aref bytes idx))
-                    (setf (ldb (byte 8 8) len) (aref bytes (incf idx)))
-                    (setf (ldb (byte 8 16) len) (aref bytes (incf idx)))
-                    (setf (ldb (byte 8 24) len) (aref bytes (incf idx)))
-                    (format t "length : ~A ~%" len)
-                    (let ((str (make-array len)))
-                      (loop for j from 0 below len
-                            collect (setf (aref str j) (code-char (aref bytes (incf idx)))))
-                      (incf idx)
-                      str)))))
+;; (defun read-byte-array (bytes)
+;;   "return string column bytes"
+;;   (let ((idx 0))
+;;     (loop while (< idx (length bytes))
+;;           collect (let ((len 0))
+;;                     (setf (ldb (byte 8 0) len) (aref bytes idx))
+;;                     (setf (ldb (byte 8 8) len) (aref bytes (incf idx)))
+;;                     (setf (ldb (byte 8 16) len) (aref bytes (incf idx)))
+;;                     (setf (ldb (byte 8 24) len) (aref bytes (incf idx)))
+;;                     (let ((str (make-array len)))
+;;                       (loop for j from 0 below len
+;;                             collect (setf (aref str j) (code-char (aref bytes (incf idx)))))
+;;                       (incf idx)
+;;                       str)))))
 
 
-(defun read-string-column (bytes)
-  "return string's column"
-  (mapcar (lambda (x) (apply #'mkstr (coerce x 'list))) (read-byte-array bytes)))
+;; (defun read-string-column (bytes)
+;;   "return string's column"
+;;   (mapcar (lambda (x) (apply #'mkstr (coerce x 'list))) (read-byte-array bytes)))
 
 (defun read-string-column (octec)
   "return string's column"
@@ -328,7 +328,7 @@
                     (setf (ldb (byte 8 8) len) (aref octec (incf idx)))
                     (setf (ldb (byte 8 16) len) (aref octec (incf idx)))
                     (setf (ldb (byte 8 24) len) (aref octec (incf idx)))
-                    (format t "length : ~A ~%" len)
+                    ;;(format t "length : ~A ~%" len)
                     (setf str (utf8-octets-to-string octec :start (incf idx) :end (+ idx len)))
                     (setf idx (+ idx len))
                     str))))
@@ -359,13 +359,14 @@
 (defun read-columns-vector (filename)
   "return column vectors"
   (loop for x in (get-column-chunk-metadata filename)
-        collect (let ((type (column-metadata-type x))
-                      (num-rows (column-metadata-num-values x))
+        collect (let* ((type (column-metadata-type x))
+                       (num-rows (column-metadata-num-values x))
                       (codec (column-metadata-codec x))
                       (compressed-size (page-header-compressed-page-size
                                         (read-page-header filename (get-offset-page x))))
                       (start-offset (page-header-data-offset
-                                     (read-page-header filename (get-offset-page x)))))
+                                     (read-page-header filename (get-offset-page x))))
+                      (bytes (read-bytes-between filename start-offset compressed-size)))
                   (format t "DATA TYPE : ~A. ~%DATA CODEC : ~A~%" (data-type type) (compression-codec-type codec))
                   (case (compression-codec-type codec)
                     (UNCOMPRESSED (format t "UNCOMPRESSED ==> "))
@@ -373,105 +374,55 @@
                     (SNAPPY (format t "SNAPPY ==>")
                      (case (data-type type)
                        (BOOLEAN (format t "BOOLEAN") (read-bytes-between filename start-offset compressed-size))
-                       (INT32 (format t "INT32")
-                        ;; XXX - TODO DUPLICATED CODES (LATER REFACTORING?)
-                        (let ((bytes (read-bytes-between filename start-offset compressed-size)))
-                          ;; with-binary-input-stream should use simple-vector
-                          (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
-                            (loop repeat num-rows
-                                  collect (read-u32 in)))))
-                       (INT64 (format t "INT64")
-                        ;; XXX - TODO DUPLICATED CODES (LATER REFACTORING?)
-                        (let ((bytes (read-bytes-between filename start-offset compressed-size)))
-                          ;; with-binary-input-stream should use simple-vector
-                          (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
-                            (loop repeat num-rows
-                                  collect (read-u64 in)))))
-                       (INT96 (format t "INT96") (read-bytes-between filename start-offset compressed-size))
-                       (FLOAT (format t "FLOAT") (read-bytes-between filename start-offset compressed-size))
-                       (DOUBLE (format t "DOUBLE") (read-bytes-between filename start-offset compressed-size))
-                       (BYTE_ARRAY (format t "BYTE_ARRAY")
-                        (let ((bytes (read-bytes-between filename start-offset compressed-size)))
-                          (uncompress bytes 0 (length bytes))))
-                       (FIXED_LEN_BYTE_ARRAY (format t "FIXED_LEN_BYTE_ARRAY") (read-bytes-between filename start-offset compressed-size))))
-                    (GZIP nil)
-                    ;; NOT YET CODE
-                    (LZO nil)
-                    ;; NOT YET CODE
-                    (BROTLI nil)
-                    ;; NOT YET CODE
-                    (LZ4 nil)
-                    ;; NOT YET CODE
-                    (ZSTD nil)))))
-
-(defun read-columns-vector (filename)
-  "return column vectors"
-  (loop for x in (get-column-chunk-metadata filename)
-        collect (let ((type (column-metadata-type x))
-                      (num-rows (column-metadata-num-values x))
-                      (codec (column-metadata-codec x))
-                      (compressed-size (page-header-compressed-page-size
-                                        (read-page-header filename (get-offset-page x))))
-                      (start-offset (page-header-data-offset
-                                     (read-page-header filename (get-offset-page x)))))
-                  (format t "DATA TYPE : ~A. ~%DATA CODEC : ~A~%" (data-type type) (compression-codec-type codec))
-                  (case (compression-codec-type codec)
-                    (UNCOMPRESSED (format t "UNCOMPRESSED ==> "))
-                    ;; NOT YET CODE
-                    (SNAPPY (format t "SNAPPY ==>")
-                     (case (data-type type)
-                       (BOOLEAN (format t "BOOLEAN") (read-bytes-between filename start-offset compressed-size))
-                       (INT32 (format t "INT32")
-                        ;; XXX - TODO using cl-binary
-                        (let ((bytes (read-bytes-between filename start-offset compressed-size)))
-                          (read-32bit-int (uncompress bytes 0 (length bytes)))))
-                       (INT64 (format t "INT64") (read-bytes-between filename start-offset compressed-size))
-                       (INT96 (format t "INT96") (read-bytes-between filename start-offset compressed-size))
-                       (FLOAT (format t "FLOAT") (read-bytes-between filename start-offset compressed-size))
-                       (DOUBLE (format t "DOUBLE") (read-bytes-between filename start-offset compressed-size))
-                       (BYTE_ARRAY (format t "BYTE_ARRAY")
+                       (INT32 (format t "INT32~%")
+                        ;; XXX TODO refactoring
+                        (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
+                          (loop repeat num-rows
+                                collect (read-u32 in))))
+                       (INT64 (format t "INT64~%")
+                        (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
+                          (loop repeat num-rows
+                                collect (read-u64 in))))
+                       (INT96 (format t "INT96~%")
+                        (read-96bit-int (uncompress bytes 0 (length bytes))))
+                       (FLOAT (format t "FLOAT~%")
+                        (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
+                          (loop repeat num-rows
+                                collect (read-f32 in))))
+                       (DOUBLE (format t "DOUBLE~%")
+                        (with-binary-input-stream (in (coerce (uncompress bytes 0 (length bytes)) 'simple-vector))
+                          (loop repeat num-rows
+                                collect (read-f64 in))))
+                       (BYTE_ARRAY (format t "BYTE_ARRAY~%")
                         (let ((bytes (read-bytes-between filename start-offset compressed-size)))
                           (read-string-column (uncompress bytes 0 (length bytes)))))
-                       (FIXED_LEN_BYTE_ARRAY (format t "FIXED_LEN_BYTE_ARRAY") (read-bytes-between filename start-offset compressed-size))))
-                    (GZIP nil)
+                       (FIXED_LEN_BYTE_ARRAY (format t "FIXED_LEN_BYTE_ARRAY~%") (read-bytes-between filename start-offset compressed-size))))
+                    (GZIP (error "NOT YET SUPPORT GZIP"))
                     ;; NOT YET CODE
-                    (LZO nil)
+                    (LZO (error "NOT YET SUPPORT LZO"))
                     ;; NOT YET CODE
-                    (BROTLI nil)
+                    (BROTLI (error "NOT YET SUPPORT BROTLI"))
                     ;; NOT YET CODE
-                    (LZ4 nil)
+                    (LZ4 (error "NOT YET LZ4"))
                     ;; NOT YET CODE
-                    (ZSTD nil)))))
+                    (ZSTD (error "NOT YET ZSTD"))))))
 
 
-;; (typep (coerce #(#x1 #x2) '(vector (unsigned-byte 8) *)) '(vector (unsigned-byte 8) *))
-;; (type-of (coerce #(#x1 #x2) '(vector (unsigned-byte 8) *)))
+;;(defparameter col0 (nth 0 (read-columns-bytes "./tests/tpch/region.parquet")))
+;;(defparameter col1 (nth 1 (read-columns-bytes "./tests/tpch/region.parquet")))
+;;(defparameter col2 (nth 2 (read-columns-bytes "./tests/tpch/region.parquet")))
 
-;; (with-binary-input-stream (in (coerce #(#x1 #x2) '(vector (unsigned-byte 8) *)))
-;;   (format t "~A~%" (read-u8 in)))
+;;(print (read-columns-vector "./tests/tpch/region.parquet"))
 
-;; (with-binary-input-stream (in #(#x1 #x2))
-;;   (format t "~A~%" (read-u8 in)))
+;;(cl-binary.io::with-binary-input-stream (in #(#x01 #x23 #x45 #x67))
+;;  (format t "~A~%" (cl-binary.io::read-u32 in)))
 
-(defparameter col0 (nth 0 (read-columns-bytes "./tests/tpch/region.parquet")))
-(defparameter col1 (nth 1 (read-columns-bytes "./tests/tpch/region.parquet")))
-(defparameter col2 (nth 2 (read-columns-bytes "./tests/tpch/region.parquet")))
+;;(with-binary-input-stream (in #(#x01 #x02 #x03 #x04))
+;;  (format t "~A~%" (read-u32 in)))
 
-(second (read-columns-vector "./tests/tpch/region.parquet"))
-;;(read-columns-vector "./tests/tpch/part.parquet")
-
-
-;;; return int32
-(read-32bit-int (uncompress col2 0 (length col2)))
+;;(defparameter abc (read-columns-vector "./tests/tpch/part.parquet"))
+;;(subseq (nth 1 abc) 0 10)
 
 ;;; return string arrays
-
-(read-string-column (uncompress col1 0 (length col1)))
-(read-string-column (uncompress col0 0 (length col0)))
-
-(let ((c (uncompress col1 0 (length col1))))
-  (utf8-octets-to-string c :start 4  :end 10))
-
-  (defun foo ()
-  "Test"
-  4)
+;;(read-string-column (uncompress col1 0 (length col1)))
+;;(read-string-column (uncompress col0 0 (length col0)))

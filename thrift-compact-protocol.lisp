@@ -38,11 +38,11 @@
     (loop for i from 1 to len
           collect (code-char (read-byte in nil)))))
 
-(defun mkstr (&rest args)
-  "make string with char elements"
-  (with-output-to-string (s)
-    (dolist (a args)
-      (princ a s))))
+;; (defun mkstr (&rest args)
+;;   "make string with char elements"
+;;   (with-output-to-string (s)
+;;     (dolist (a args)
+;;       (princ a s))))
 
 
 (defun var-ints (s &optional (results 0) (depth 0))
@@ -54,3 +54,104 @@
       (if (= depth 0)
           (var-ints s (logior (logand #b01111111 byte) results) (+ 1 depth))
           (var-ints s (logior (ash (logand #b01111111 byte) (* 7 depth)) results) (+ 1 depth))))))
+
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun mkstr (&rest args)
+    (with-output-to-string (s)
+      (dolist (a args)
+        (princ a s))))
+
+  (defun symb (&rest args)
+    (values (intern (apply #'mkstr args)))))
+
+
+(defclass binary-input-stream (fundamental-binary-input-stream)
+  ((data :initarg :data :type '(vector (unsigned-byte 8) (*)))
+   (index :initarg :index)
+   (end :initarg :end)))
+
+(defun make-binary-input-stream (data)
+  (make-instance 'binary-input-stream :data data :index 0 :end (length data)))
+
+(defmethod stream-read-byte ((stream fundamental-binary-input-stream))
+  (with-slots (data index end) stream
+    (if (>= index end)
+        :eof
+        (prog1 (svref data index)
+          (incf index)))))
+
+(defmacro with-binary-input-stream ((stream vector) &body body)
+  `(let ((,stream (make-binary-input-stream ,vector)))
+     (unwind-protect
+          (progn ,@body)
+       (close ,stream))))
+
+(defun u-to-s (number bit)
+  "Convert an unsigned number to a signed number with `bit` length."
+  (if (and (plusp number)
+           (< number (ash 1 bit)))
+      (if (plusp (logand number (ash 1 (1- bit))))
+          (- number (ash 1 bit))
+          number)
+      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
+
+(defun s-to-u (number bit)
+  "Convert a signed number to an unsigned number with `bit` length."
+  (if (and (<= (- (ash 1 (1- bit))) number)
+           (< number (ash 1 (1- bit))))
+      (if (minusp number)
+          (+ number (ash 1 bit))
+          number)
+      (error "Out of bounds error (Number is beyond ~a bit)" bit)))
+
+(defmacro def-signed (name unit place &optional val &key (direction :input))
+  (let ((sname (symb name "-S" unit))
+        (uname (symb name "-U" unit)))
+    (case direction
+      (:input
+       `(defun ,sname (,@place)
+          (u-to-s (,uname ,@place) ,unit)))
+      (:output
+       `(defun ,sname (,@place ,val)
+          (,uname ,@place (s-to-u ,val ,unit))))
+      (t (error "Unknown direction: ~a~%" direction)))))
+
+;;; read-u8
+;;; read-u16
+;;; read-u32
+;;; read-u64
+(defmacro def-read-u* (unit)
+  `(defun ,(symb "READ-U" unit) (stream)
+     ,(if (<= unit 8)
+          `(read-byte stream nil nil)
+          (let ((b (gensym)))
+            `(let ((,b (read-byte stream nil nil)))
+               (when ,b
+                 (logior
+                  ,b
+                  ,@(loop for i from 8 below unit by 8
+                       collect `(ash (read-byte stream nil 0) ,i)))))))))
+
+(def-read-u* 8)
+(def-read-u* 16)
+(def-read-u* 32)
+(def-read-u* 64)
+
+;;; read-s8
+;;; read-s16
+;;; read-s32
+;;; read-s64
+(def-signed read   8 (stream) nil :direction :input)
+(def-signed read  16 (stream) nil :direction :input)
+(def-signed read  32 (stream) nil :direction :input)
+(def-signed read  64 (stream) nil :direction :input)
+
+;;; read-f32
+;;; read-f64
+(defmacro def-read-f* (unit)
+  `(defun ,(symb "READ-F" unit) (stream)
+     (,(symb "DECODE-FLOAT" unit) (,(symb "READ-U" unit)  stream))))
+
+(def-read-f* 32)
+(def-read-f* 64)

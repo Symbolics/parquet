@@ -5,7 +5,7 @@
   :author "Inchul <ijung@mapr.com>"
   :license "BSD"
   :serial t
-  :depends-on ("com.google.base" "snappy" "cl-binary")
+  :depends-on ("com.google.base" "snappy" "ieee-floats")
   :in-order-to ((test-op (test-op "parquet/tests")))
   :components ((:file "package")
                (:file "thrift-compact-protocol")
@@ -14,6 +14,8 @@
                (:file "column")
                (:file "row")
                (:file "file")
+               (:file "summary")
+               (:file "util")
                (:file "parquet-reader")))
 
 (asdf:defsystem "parquet/tests"
